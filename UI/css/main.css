@@ -1,0 +1,22 @@
+body {
+	margin: 0;
+	padding-top: 10px;
+}
+
+#form {
+	margin: 10px auto;
+}
+
+#mainContent .card {
+	margin-bottom: 30px;
+}
+
+.wrapper {
+	position:absolute;
+	top:50%;
+	left:50%;
+}
+
+.wrapper-bottom {
+	position: relative;
+}
