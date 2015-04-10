@@ -1,14 +1,16 @@
 $(document).ready(function() {
 
+  $('input[type=text]').focus();
+
 	var cl = new CanvasLoader('canvasLoader');
 	var mainContent = $('#mainContent').children('.row');
 	var canvasLoader = $('#canvasLoader');
-	var errDiv = $('#errorMsg');
 	var didScroll = false;
+  var errMsg; // check whether the error message has appeared
 
 	var storeData = {
 		url: 'http://address:8983/solr/amazon/',
-		triggerByScroll: false,
+		triggerBy: '',
 		query: '',
 		searchBy: '',
 		start: 0,
@@ -18,33 +20,53 @@ $(document).ready(function() {
 
 	var renderData = function(queryData, spellData) {
 		cl.hide();
-		if(errDiv) {
-			errDiv.remove();
-		}
 
 		if(spellData !== undefined) {
-			mainContent.append('<p>Did you mean:' + spellData.spellcheck.collations[1].collationQuery + '</p>');
+			mainContent.append('<div class="col-xs-12"><h4>Did you mean: <u><a id="hintMsg">' + spellData.spellcheck.collations[1].collationQuery + '</a></u></h4></div>');
+
+      $('#hintMsg').click(function() {
+        storeData.triggerBy = 'hint';
+        storeData.query = $('#hintMsg').text();
+        storeData.searchBy = $('input[type=radio]:checked').val();
+        $('input[type=text]').val(storeData.query);
+        storeData.start = 1;
+        storeData.queryStr = storeData.url + 'query?' + storeData.searchBy + ':q=' + storeData.query + '&start=' + storeData.start;
+
+        fetchData(storeData);
+        $(window).scrollTop(0);
+      });
 		}
+
+    if(errMsg) {
+      errMsg.remove();
+      errMsg = null;
+    }
 
 		// $.each($.parseJSON(queryData).response.docs, function(i, value) {
 		$.each(queryData.response.docs, function(i, value) {
 			var card = '<div class="card col-lg-3 col-sm-4 col-xs-6">'
-				+ '<img src="http://placehold.it/350x350" class="img-responsive" alt="Responsive image">'
-	      + (i+1) + '</div>';
+				+ '<div class="imgWrapper"><img src="' + value.bigImageLink + '" class="img-responsive" alt="Responsive image"></div>'
+        + '<p id="title">' + value.title + '</p>'
+        + '<p id="author">Author: ' + value.author + '</p>'
+        + '<p id="price">Price: ' + value.sellingPrice + '</p></div>';
 				mainContent.append(card);
 		});
 	}
 
 	var errorMsg = function() {
 		cl.hide();
-		$('#mainContent').append('<div id="errorMsg" class="alert alert-danger" role="alert">' +
-					  '<h3>Oooops! Something went wrong! Please try again later.</h3></div>');
+    if(!errMsg) {
+      mainContent.append('<div class="clearfix"></div><div id="errorMsg" class="alert alert-danger" role="alert">' 
+        + '<h3>Oooops! Something went wrong! Please try again later.</h3></div>');
+      errMsg = $('#errorMsg');
+    }		
 	}
 
 	var fetchData = function(options) {
-		if(!options.triggerByScroll) {
-
+		if(options.triggerBy === 'submit' ) {
+      $('input[type=text]').blur();
 			mainContent.empty();
+      errMsg = null;
 	  	canvasLoader.removeClass('wrapper-bottom');
 	  	canvasLoader.addClass('wrapper');
 	  	cl.setDiameter(91);
@@ -52,21 +74,21 @@ $(document).ready(function() {
 
 	  	$.when(sendRequest(options.spellStr), sendRequest(options.queryStr))
 	  	.done(function(d1, d2) {
-	  		d1 = spellRight; // delete this when testing 
+	  		d1 = spellWrong; // delete this when testing 
 	  		d2 = result; // delete this when testing 
 
 	  		if(d1.spellcheck.correctlySpelled) {
 	  			renderData(d2);
 	  		} else {
-
 	  			renderData(d2, d1);
 	  		}
 	  	})
 	  	.fail(errorMsg);
-
-		} else {
-	  	canvasLoader.addClass('wrapper-bottom');
-	  	canvasLoader.removeClass('wrapper');
+		} else if(options.triggerBy === 'hint'){
+      mainContent.empty();
+      errMsg = null;
+      canvasLoader.removeClass('wrapper-bottom');
+      canvasLoader.addClass('wrapper');
 	  	cl.setDiameter(91);
 			cl.show();
 
@@ -77,31 +99,43 @@ $(document).ready(function() {
 	  		renderData(d)
 	  	})
 	  	.fail(errorMsg);
-		}
+		} else {
+      canvasLoader.addClass('wrapper-bottom');
+      canvasLoader.removeClass('wrapper');
+      cl.setDiameter(91);
+      cl.show();
+
+      sendRequest(options.queryStr)
+      .done(function(d) {
+        d = result; // delete this when testing 
+
+        renderData(d)
+      })
+      .fail(errorMsg);
+    }
 	}
 
 	var sendRequest = function(request) {
 		return $.ajax({
 			dataType: 'json',
+
+      // url: request,
 			url: 'http://mysafeinfo.com/api/data?list=englishmonarchs&format=json',
 			timeout: 5000
 		});
 	}
 
-
 	var submitForm = function() {
-
 		var query = $('input[type=text]').val().trim();
-		var searchBy = $('input[type=radio]:checked').val().trim();
+		var searchBy = $('input[type=radio]:checked').val();
 		if(searchBy.indexOf('title') > -1) {
 			searchBy = 'title';
-		} 
-		else {
+		} else {
 			searchBy = 'author';
 		}
 
-		if(query && !(query === storeData.query && searchBy === storeData.searchBy)) {
-
+		if(query && (errMsg || !(query === storeData.query && searchBy === storeData.searchBy))) {
+      storeData.triggerBy = 'submit';
 			storeData.query = query;
 			storeData.searchBy = searchBy;
 			storeData.start = 1;
@@ -121,6 +155,7 @@ $(document).ready(function() {
       submitForm();
     }
 	});
+
 	$('#submitButton').click(function() {
 		submitForm();
 	});
@@ -132,10 +167,12 @@ $(document).ready(function() {
 	setInterval(function() {
     if (didScroll) {
     	didScroll = false;
-	    if($(window).scrollTop() == $(document).height() - $(window).height()) {
+	    if($(window).scrollTop() == $(document).height() - $(window).height() && storeData.query) {
 	    	var scrollPosition = $(window).scrollTop();
-	    	storeData.triggerByScroll = true;
-	    	storeData.start = storeData.start + 12;
+	    	storeData.triggerBy = 'scroll';
+        if(!errMsg) {
+          storeData.start = storeData.start + 12;
+        } 
 	    	storeData.queryStr = storeData.url + 'query?' + storeData.searchBy + ':q=' + storeData.query + '&start=' + storeData.start;
 	    	fetchData(storeData);
 	    	$(window).scrollTop(scrollPosition);
@@ -144,8 +181,7 @@ $(document).ready(function() {
 	}, 800);
 
 
-
-
+// delete all above when testing 
 var spellRight = 
 {
     "response": {
@@ -419,4 +455,3 @@ var result =
 
 
 });
-

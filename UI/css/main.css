@@ -7,10 +7,6 @@ body {
 	margin: 10px auto;
 }
 
-#mainContent .card {
-	margin-bottom: 30px;
-}
-
 .wrapper {
 	position:absolute;
 	top:50%;
@@ -19,4 +15,34 @@ body {
 
 .wrapper-bottom {
 	position: relative;
+}
+
+#hintMsg:hover {
+	cursor: pointer;
+}
+
+.card {
+	height: 500px;
+	margin-bottom: 20px;
+	margin-top: 20px;
+}
+
+#title {
+	margin-top: 10px;
+}
+
+#price {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.imgWrapper {
+	position: relative;
+	height: 350px;
+	width: 100%;
+}
+
+.imgWrapper img {
+	min-height: 100%;
+	max-height: 100%;
 }
