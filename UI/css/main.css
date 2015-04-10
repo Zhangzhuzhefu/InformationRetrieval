@@ -1,6 +1,7 @@
 body {
 	margin: 0;
 	padding-top: 10px;
+	min-width: 800px;
 }
 
 #form {
