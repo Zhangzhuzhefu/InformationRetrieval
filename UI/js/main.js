@@ -6,10 +6,10 @@ $(document).ready(function() {
 	var mainContent = $('#mainContent').children('.row');
 	var canvasLoader = $('#canvasLoader');
 	var didScroll = false;
-  var errMsg; // check whether the error message has appeared
+    var errMsg; // check whether the error message has appeared
 
 	var storeData = {
-		url: 'http://address:8983/solr/amazon/',
+		url: 'http://127.0.0.1:8983/solr/amazon/',
 		triggerBy: '',
 		query: '',
 		searchBy: '',
@@ -20,107 +20,109 @@ $(document).ready(function() {
 
 	var renderData = function(queryData, spellData) {
 		cl.hide();
-
 		if(spellData !== undefined) {
 			mainContent.append('<div class="col-xs-12"><h4>Did you mean: <u><a id="hintMsg">' + spellData.spellcheck.collations[1].collationQuery + '</a></u></h4></div>');
 
-      $('#hintMsg').click(function() {
-        storeData.triggerBy = 'hint';
-        storeData.query = $('#hintMsg').text();
-        storeData.searchBy = $('input[type=radio]:checked').val();
-        $('input[type=text]').val(storeData.query);
-        storeData.start = 1;
-        storeData.queryStr = storeData.url + 'query?' + storeData.searchBy + ':q=' + storeData.query + '&start=' + storeData.start;
+            $('#hintMsg').click(function() {
+                storeData.triggerBy = 'hint';
+                storeData.query = $('#hintMsg').text();
+                storeData.searchBy = $('input[type=radio]:checked').val();
+                $('input[type=text]').val(storeData.query);
+                storeData.start = 0;
+                storeData.queryStr = storeData.url + 'query?q=' + storeData.searchBy + ':' + storeData.query + '&start=' + storeData.start;
 
-        fetchData(storeData);
-        $(window).scrollTop(0);
-      });
+                fetchData(storeData);
+                $(window).scrollTop(0);
+             });
 		}
 
-    if(errMsg) {
-      errMsg.remove();
-      errMsg = null;
-    }
+        if(errMsg) {
+          errMsg.remove();
+          errMsg = null;
+        }
 
-		// $.each($.parseJSON(queryData).response.docs, function(i, value) {
-		$.each(queryData.response.docs, function(i, value) {
-			var card = '<div class="card col-lg-3 col-sm-4 col-xs-6">'
-				+ '<div class="imgWrapper"><img src="' + value.bigImageLink + '" class="img-responsive" alt="Responsive image"></div>'
-        + '<p id="title">' + value.title + '</p>'
-        + '<p id="author">Author: ' + value.author + '</p>'
-        + '<p id="price">Price: ' + value.sellingPrice + '</p></div>';
-				mainContent.append(card);
+		$.each($.parseJSON(queryData).response.docs, function(i, value) {
+        //$.each(queryData.response.docs, function(i, value) {
+                var card = '<div class="card col-lg-3 col-sm-4 col-xs-6">'
+                    + '<div class="imgWrapper"><img src="' + value.bigImageLink + '" class="img-responsive" alt="Responsive image"></div>'
+                    + '<p id="title">' + value.title + '</p>'
+                    + '<p id="author">Author: ' + value.author + '</p>'
+                    + '<p id="price">Price: ' + value.sellingPrice + '</p></div>';
+                mainContent.append(card);
 		});
 	}
 
 	var errorMsg = function() {
 		cl.hide();
-    if(!errMsg) {
-      mainContent.append('<div class="clearfix"></div><div id="errorMsg" class="alert alert-danger" role="alert">' 
-        + '<h3>Oooops! Something went wrong! Please try again later.</h3></div>');
-      errMsg = $('#errorMsg');
-    }		
+        if(!errMsg) {
+          mainContent.append('<div class="clearfix"></div><div id="errorMsg" class="alert alert-danger" role="alert">'
+            + '<h3>Oooops! Something went wrong! Please try again later.</h3></div>');
+          errMsg = $('#errorMsg');
+        }
 	}
 
 	var fetchData = function(options) {
 		if(options.triggerBy === 'submit' ) {
-      $('input[type=text]').blur();
+            $('input[type=text]').blur();
 			mainContent.empty();
-      errMsg = null;
-	  	canvasLoader.removeClass('wrapper-bottom');
-	  	canvasLoader.addClass('wrapper');
-	  	cl.setDiameter(91);
+            errMsg = null;
+            canvasLoader.removeClass('wrapper-bottom');
+            canvasLoader.addClass('wrapper');
+            cl.setDiameter(91);
 			cl.show();
 
-	  	$.when(sendRequest(options.spellStr), sendRequest(options.queryStr))
-	  	.done(function(d1, d2) {
-	  		d1 = spellWrong; // delete this when testing 
-	  		d2 = result; // delete this when testing 
+            $.when(sendRequest(options.spellStr), sendRequest(options.queryStr))
+            .done(function(d1, d2) {
+                //d1 = spellWrong; // delete this when testing
+                //d2 = result; // delete this when testing
+                //var r1 = JSON && JSON.parse(d1) || $.parseJSON(d1);
+                //var r2 = JSON && JSON.parse(d2) || $.parseJSON(d2);
 
-	  		if(d1.spellcheck.correctlySpelled) {
-	  			renderData(d2);
-	  		} else {
-	  			renderData(d2, d1);
-	  		}
-	  	})
-	  	.fail(errorMsg);
+                console.log(d1);
+                console.log(d2);
+
+                if(d1.spellcheck.correctlySpelled) {
+                    renderData(d2);
+                } else {
+                    renderData(d2, d1);
+                }
+	  	    })
+	  	    .fail(errorMsg);
 		} else if(options.triggerBy === 'hint'){
-      mainContent.empty();
-      errMsg = null;
-      canvasLoader.removeClass('wrapper-bottom');
-      canvasLoader.addClass('wrapper');
-	  	cl.setDiameter(91);
-			cl.show();
+            mainContent.empty();
+            errMsg = null;
+            canvasLoader.removeClass('wrapper-bottom');
+            canvasLoader.addClass('wrapper');
+            cl.setDiameter(91);
+            cl.show();
 
-	  	sendRequest(options.queryStr)
-	  	.done(function(d) {
-				d = result;	// delete this when testing 
+            sendRequest(options.queryStr)
+            .done(function(d) {
+                //d = result;	// delete this when testing
+                renderData(d)
+            })
+            .fail(errorMsg);
+        } else {
+            canvasLoader.addClass('wrapper-bottom');
+            canvasLoader.removeClass('wrapper');
+            cl.setDiameter(91);
+            cl.show();
 
-	  		renderData(d)
-	  	})
-	  	.fail(errorMsg);
-		} else {
-      canvasLoader.addClass('wrapper-bottom');
-      canvasLoader.removeClass('wrapper');
-      cl.setDiameter(91);
-      cl.show();
-
-      sendRequest(options.queryStr)
-      .done(function(d) {
-        d = result; // delete this when testing 
-
-        renderData(d)
-      })
-      .fail(errorMsg);
-    }
+            sendRequest(options.queryStr)
+            .done(function(d) {
+            //   d = result; // delete this when testing
+                renderData(d)
+            }).fail(errorMsg);
+        }
 	}
 
 	var sendRequest = function(request) {
+	console.log(request);
 		return $.ajax({
 			dataType: 'json',
-
-      // url: request,
-			url: 'http://mysafeinfo.com/api/data?list=englishmonarchs&format=json',
+            type: 'GET',
+            url: request,
+			//url: 'http://mysafeinfo.com/api/data?list=englishmonarchs&format=json',
 			timeout: 5000
 		});
 	}
@@ -135,13 +137,13 @@ $(document).ready(function() {
 		}
 
 		if(query && (errMsg || !(query === storeData.query && searchBy === storeData.searchBy))) {
-      storeData.triggerBy = 'submit';
+            storeData.triggerBy = 'submit';
 			storeData.query = query;
 			storeData.searchBy = searchBy;
-			storeData.start = 1;
+			storeData.start = 0;
 
 			storeData.spellStr = storeData.url + 'spell?q=' + storeData.query;
-			storeData.queryStr = storeData.url + 'query?' + storeData.searchBy + ':q=' + storeData.query + '&start=' + storeData.start;
+			storeData.queryStr = storeData.url + 'query?q=' + storeData.searchBy + ':' + storeData.query; //+ '&start=' + storeData.start;
 
 			fetchData(storeData);
 
@@ -150,10 +152,10 @@ $(document).ready(function() {
 	}
 
 	$('input[type=text]').keypress(function(event) {
-    if (event.which == 13) {
-      event.preventDefault();
-      submitForm();
-    }
+        if (event.which == 13) {
+          event.preventDefault();
+          submitForm();
+        }
 	});
 
 	$('#submitButton').click(function() {
@@ -161,23 +163,23 @@ $(document).ready(function() {
 	});
 
 	$(window).scroll(function() {
-	  didScroll = true;
+	    didScroll = true;
 	});
 
 	setInterval(function() {
-    if (didScroll) {
-    	didScroll = false;
-	    if($(window).scrollTop() == $(document).height() - $(window).height() && storeData.query) {
-	    	var scrollPosition = $(window).scrollTop();
-	    	storeData.triggerBy = 'scroll';
-        if(!errMsg) {
-          storeData.start = storeData.start + 12;
-        } 
-	    	storeData.queryStr = storeData.url + 'query?' + storeData.searchBy + ':q=' + storeData.query + '&start=' + storeData.start;
-	    	fetchData(storeData);
-	    	$(window).scrollTop(scrollPosition);
-	    }
-    }
+        if (didScroll) {
+            didScroll = false;
+            if($(window).scrollTop() == $(document).height() - $(window).height() && storeData.query) {
+                var scrollPosition = $(window).scrollTop();
+                storeData.triggerBy = 'scroll';
+                if(!errMsg) {
+                  storeData.start = storeData.start + 12;
+                }
+                storeData.queryStr = storeData.url + 'query?q=' + storeData.searchBy + ':' + storeData.query + '&start=' + storeData.start;
+                fetchData(storeData);
+                $(window).scrollTop(scrollPosition);
+            }
+        }
 	}, 800);
 
 
@@ -411,6 +413,44 @@ var result =
         "listPrice":"$56.00",
         "sellingPrice":"$38.99"},
       {
+        "id":"B004GNFPES",
+        "title":"Corporate Finance Demystified 2/E",
+        "description":"The simple way to master corporate finance The math, the formulas, the problem solving . . . does corporate finance make your head spin? You're not alone. It's one of the toughest subjects for business students°™which is why Corporate Finance DeMYSTiFieD is written in a way that makes learning it easier than ever. This self-teaching guide first explains the basic principles of corporate finance, including accounting statements, cash flows, and ratio analysis. Then, you'll learn all the specifics of more advanced practices like estimating future cash flows, scenario analysis, and option valuation. Filled with end-of-chapter quizzes and a final exam, Corporate Finance DeMYSTiFieD teaches you the ins-and-outs of this otherwise confounding subject in no time at all. This fast and easy guide features:  An overview of important concepts, such as time value of money, interest rate conversion, payment composition, and amortization schedules Easy-to-understand descriptions of corporate finance principles and strategies Chapter-ending quizzes and a comprehensive final exam to reinforce what you've learned and pinpoint problem areas Hundreds of updated examples with practical solutions  Simple enough for a beginner, but challenging enough for an advanced student, Corporate Finance DeMYSTiFieD is your shortcut to a working knowledge of this important business topic. ",
+        "author":"Troy Adair",
+        "eisbn":"9780071760836",
+        "binding":"Kindle Edition",
+        "releaseDate":"2010-12-14",
+        "pageNo":"304",
+        "format":"Kindle eBook",
+        "smallImageLink":"http://ecx.images-amazon.com/images/I/51lSWW3fkuL._SL75_.jpg",
+        "mediumImageLink":"http://ecx.images-amazon.com/images/I/51lSWW3fkuL._SL160_.jpg",
+        "bigImageLink":"http://ecx.images-amazon.com/images/I/51lSWW3fkuL.jpg",
+        "url":"http://www.amazon.com/Corporate-Finance-Demystified-2-E-ebook/dp/B004GNFPES%3FSubscriptionId%3DAKIAI4EATQPGGOED4RBQ%26tag%3Di0ad9d-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB004GNFPES",
+        "reviewsCount":"11",
+        "avStarRating":"3.2 out of 5 stars",
+        "lending":" Not Enabled",
+        "listPrice":"$22.00",
+        "sellingPrice":"$10.99"},
+        {
+        "id":"B004GNFPES",
+        "title":"Corporate Finance Demystified 2/E",
+        "description":"The simple way to master corporate finance The math, the formulas, the problem solving . . . does corporate finance make your head spin? You're not alone. It's one of the toughest subjects for business students°™which is why Corporate Finance DeMYSTiFieD is written in a way that makes learning it easier than ever. This self-teaching guide first explains the basic principles of corporate finance, including accounting statements, cash flows, and ratio analysis. Then, you'll learn all the specifics of more advanced practices like estimating future cash flows, scenario analysis, and option valuation. Filled with end-of-chapter quizzes and a final exam, Corporate Finance DeMYSTiFieD teaches you the ins-and-outs of this otherwise confounding subject in no time at all. This fast and easy guide features:  An overview of important concepts, such as time value of money, interest rate conversion, payment composition, and amortization schedules Easy-to-understand descriptions of corporate finance principles and strategies Chapter-ending quizzes and a comprehensive final exam to reinforce what you've learned and pinpoint problem areas Hundreds of updated examples with practical solutions  Simple enough for a beginner, but challenging enough for an advanced student, Corporate Finance DeMYSTiFieD is your shortcut to a working knowledge of this important business topic. ",
+        "author":"Troy Adair",
+        "eisbn":"9780071760836",
+        "binding":"Kindle Edition",
+        "releaseDate":"2010-12-14",
+        "pageNo":"304",
+        "format":"Kindle eBook",
+        "smallImageLink":"http://ecx.images-amazon.com/images/I/51lSWW3fkuL._SL75_.jpg",
+        "mediumImageLink":"http://ecx.images-amazon.com/images/I/51lSWW3fkuL._SL160_.jpg",
+        "bigImageLink":"http://ecx.images-amazon.com/images/I/51lSWW3fkuL.jpg",
+        "url":"http://www.amazon.com/Corporate-Finance-Demystified-2-E-ebook/dp/B004GNFPES%3FSubscriptionId%3DAKIAI4EATQPGGOED4RBQ%26tag%3Di0ad9d-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB004GNFPES",
+        "reviewsCount":"11",
+        "avStarRating":"3.2 out of 5 stars",
+        "lending":" Not Enabled",
+        "listPrice":"$22.00",
+        "sellingPrice":"$10.99"},
+        {
         "id":"B004GNFPES",
         "title":"Corporate Finance Demystified 2/E",
         "description":"The simple way to master corporate finance The math, the formulas, the problem solving . . . does corporate finance make your head spin? You're not alone. It's one of the toughest subjects for business students°™which is why Corporate Finance DeMYSTiFieD is written in a way that makes learning it easier than ever. This self-teaching guide first explains the basic principles of corporate finance, including accounting statements, cash flows, and ratio analysis. Then, you'll learn all the specifics of more advanced practices like estimating future cash flows, scenario analysis, and option valuation. Filled with end-of-chapter quizzes and a final exam, Corporate Finance DeMYSTiFieD teaches you the ins-and-outs of this otherwise confounding subject in no time at all. This fast and easy guide features:  An overview of important concepts, such as time value of money, interest rate conversion, payment composition, and amortization schedules Easy-to-understand descriptions of corporate finance principles and strategies Chapter-ending quizzes and a comprehensive final exam to reinforce what you've learned and pinpoint problem areas Hundreds of updated examples with practical solutions  Simple enough for a beginner, but challenging enough for an advanced student, Corporate Finance DeMYSTiFieD is your shortcut to a working knowledge of this important business topic. ",
