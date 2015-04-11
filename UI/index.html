@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,82 +14,91 @@
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-  </head>
-  <body>
-    <nav class="navbar navbar-default">
-      <div class="container">
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container">
         <div class="row">
-          <div class="col-sm-8 col-sm-offset-2">
-            <div id="form">
-              <div class="input-group input-group-lg">
-                <input type="text" class="form-control" placeholder="">
+            <div class="col-sm-8 col-sm-offset-2">
+                <div id="form">
+                    <div class="input-group input-group-lg">
+                        <input type="text" class="form-control" placeholder="">
                 <span class="input-group-btn">
                   <button id="submitButton" class="btn btn-default" type="button">Go!</button>
                 </span>
-              </div><!-- /input-group -->
+                    </div>
+                    <!-- /input-group -->
 
-              <div id = "searchBy" class="row">
-                  <div class="col-sm-3">
-                  <label class="radio-inline">
-                    <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="keyword" checked> By Keyword
-                  </label>
-                </div>
-                <div class="col-sm-3">
-                  <label class="radio-inline">
-                    <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="title"> By Title
-                  </label>
-                </div>
-                <div class="col-sm-3">
-                  <label class="radio-inline">
-                    <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="author"> By Author
-                  </label>
-                </div>
-              </div>
+                    <div id="searchBy" class="row">
+                        <div class="col-sm-3">
+                            <label class="radio-inline">
+                                <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="keyword" checked>
+                                By Keyword
+                            </label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="radio-inline">
+                                <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="title"> By Title
+                            </label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="radio-inline">
+                                <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="author"> By
+                                Author
+                            </label>
+                        </div>
+                    </div>
 
-              <div id = "filterBy" class="row">
-                  <div class="col-sm-3">
-                  <label class="checkbox-inline">
-                    <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox1" value="Entry Level" checked> Entry Level
-                  </label>
-                </div>
-                <div class="col-sm-3"> 
-                  <label class="checkbox-inline">
-                    <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox2" value="Advanced Level" checked> Advanced Level
-                  </label>
-                </div>
-                <div class="col-sm-3">
-                  <label class="checkbox-inline">
-                    <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox3" value="Professional Level" checked> Professional Level
-                  </label>
-                </div>
-                <div class="col-sm-3">
-                  <label class="checkbox-inline">
-                    <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox4" value="Self-enrichment" checked>  Self-enrichment
-                  </label>
-                </div>
-              </div>
 
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </nav>
-
-    <div id="mainContent" class="container">  
-      <div class="row">
-      </div>     
     </div>
+</nav>
+<div class="col-sm-8 col-sm-offset-2 text-center">
+    <div id="filterBy" class="row">
+        <div class="col-sm-3">
+            <label class="checkbox-inline">
+                <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox1" value="Entry Level" checked>
+                Entry Level
+            </label>
+        </div>
+        <div class="col-sm-3">
+            <label class="checkbox-inline">
+                <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox2" value="Advanced Level" checked>
+                Advanced Level
+            </label>
+        </div>
+        <div class="col-sm-3">
+            <label class="checkbox-inline">
+                <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox3" value="Professional Level"
+                       checked> Professional Level
+            </label>
+        </div>
+        <div class="col-sm-3">
+            <label class="checkbox-inline">
+                <input type="checkbox" name="inlineCheckboxOptions" id="inlineCheckbox4" value="Self-enrichment"
+                       checked> Self-enrichment
+            </label>
+        </div>
+    </div>
+</div>
 
-    <div id="canvasLoader" class="wrapper text-center"></div>
-    
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="./js/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="./js/bootstrap.min.js"></script>
-    <script src="./js/heartcode-canvasloader.js"></script>
-    <script src="./js/main.js"></script>
-  </body>
+<div id="mainContent" class="container">
+    <div class="row">
+    </div>
+</div>
+
+<div id="canvasLoader" class="wrapper text-center"></div>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="./js/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="./js/bootstrap.min.js"></script>
+<script src="./js/heartcode-canvasloader.js"></script>
+<script src="./js/main.js"></script>
+</body>
 </html>
