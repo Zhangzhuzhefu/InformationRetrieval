@@ -113,7 +113,7 @@ $(document).ready(function() {
 
       sendRequest(options.queryStr)
       .done(function(d) {
-          renderData(d)
+          renderData(d);
         }).fail(errorMsg);
     }
   }
