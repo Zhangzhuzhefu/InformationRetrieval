@@ -7,9 +7,10 @@ $(document).ready(function() {
   var canvasLoader = $('#canvasLoader');
   var didScroll = false;
   var errMsg; // check whether the error message has appeared
+  var noResult;
 
   var storeData = {
-    url: 'http://10.27.202.216:8983/solr/amazon/',
+    url: 'http://192.168.1.2:8983/solr/amazon/',
     triggerBy: '',
     query: '',
     searchBy: '',
@@ -18,6 +19,32 @@ $(document).ready(function() {
     lastQuery: '',
     queryStr: ''
   }
+
+  var filterCards = function() {
+    var filterSet = [];
+    $('input[type=checkbox]:checked').each(function(i, filter) {
+      filterSet.push($(filter).val());
+    });
+    $('.card').each(function(i, card) {
+        if($.inArray($(card).attr('data-category'), filterSet) > -1) {
+          $(card).show();
+        } else {
+          $(card).hide();
+        }
+    });
+
+    if(!noResult & !errorMsg && $('.card:visible').length === 0) {
+        mainContent.append('<div class="clearfix"></div><div id="noResult" class="alert alert-danger" role="alert">'
+        + '<h3>No result is found.</h3></div>');
+        noResult = $('#noResult');;
+    }
+
+    if(noResult && $('.card:visible').length > 0) {
+        noResult.remove();
+        noResult = null;
+    }
+  }
+
 
   var renderData = function(queryData, spellData) {
     cl.hide();
@@ -46,18 +73,30 @@ $(document).ready(function() {
       errMsg = null;
     }
 
+    if(noResult) {
+        noResult.remove();
+        noResult = null;
+    }
+
+
     if (queryData.response.numFound === 0) {
-        mainContent.append('<div class="clearfix"></div><div id="errorMsg" class="alert alert-danger" role="alert">'
-        + '<h3>No result is found.</h3></div>');
+        if(!noResult) {
+             mainContent.append('<div class="clearfix"></div><div id="noResult" class="alert alert-danger" role="alert">'
+            + '<h3>No result is found.</h3></div>');
+            noResult = $('#noResult');
+        }
+
     } else {
         $.each(queryData.response.docs, function(i, value) {
-            var card = '<div class="card col-lg-3 col-sm-4 col-xs-6">'
+            var card = '<div data-category="' + value.category + '" class="card col-lg-3 col-sm-4 col-xs-6">'
             + '<div class="imgWrapper"><a target = "_blank" href="' + value.url + '"><img src="' + value.bigImageLink + '" class="img-responsive" alt="Responsive image"></a></div>'
             + '<p id="title">' + value.title + '</p>'
             + '<p id="author">Author: ' + value.author + '</p>'
             + '<p id="price">Price: ' + value.sellingPrice + '</p></div>';
             mainContent.append(card);
           });
+
+        filterCards();
     }
   }
 
@@ -75,6 +114,7 @@ $(document).ready(function() {
       $('input[type=text]').blur();
       mainContent.empty();
       errMsg = null;
+      noResult = null;
       canvasLoader.removeClass('wrapper-bottom');
       canvasLoader.addClass('wrapper');
       cl.setDiameter(91);
@@ -95,6 +135,7 @@ $(document).ready(function() {
     } else if(options.triggerBy === 'hint'){
       mainContent.empty();
       errMsg = null;
+      noResult = null;
       canvasLoader.removeClass('wrapper-bottom');
       canvasLoader.addClass('wrapper');
       cl.setDiameter(91);
@@ -166,6 +207,10 @@ $(document).ready(function() {
 
   $('#submitButton').click(function() {
     submitForm();
+  });
+
+  $('input[type=checkbox]').click(function() {
+    filterCards();
   });
 
   $(window).scroll(function() {
