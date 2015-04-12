@@ -10,7 +10,7 @@ $(document).ready(function() {
   var noResult;
 
   var storeData = {
-    url: 'http://192.168.1.2:8983/solr/amazon/',
+    url: 'http://172.22.227.71:8983/solr/amazon/',
     triggerBy: '',
     query: '',
     searchBy: '',
@@ -172,6 +172,7 @@ $(document).ready(function() {
 
 
   var submitForm = function() {
+    document.getElementById('homeImage').style.display = 'none';
     var query = $('input[type=text]').val().trim();
     var searchBy = $('input[type=radio]:checked').val();
 
